@@ -1,19 +1,19 @@
 <template>
     <div class="container">
         <!-- 标题部分 -->
-        <h2>　欢迎加入 鱼香ROS　翻译组织　</h2>
+        <h2 class="title">　欢迎加入 鱼香ROS　翻译组织　</h2>
         <el-row></el-row>
         <!-- 表单部分 -->
-        <el-form ref="formRef" :model="form" label-width="120px">
+        <el-form ref="formRef" :model="form" label-width="auto">
             <el-row justify="center" align="center">
                 <el-col :span="12">
                     <el-form-item label="昵称">
-                        <el-input v-model="form.name"></el-input>
+                        <el-input v-model="form.name" ></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
                     <el-form-item label="主页">
-                        <el-input v-model="form.name"></el-input>
+                        <el-input v-model="form.url"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -26,16 +26,26 @@
             <el-form-item label="新的翻译内容：">
                 <el-input v-model="form.inputText" type="textarea"></el-input>
             </el-form-item>
+            <el-form-item>
+                <el-row justify="center">
+                    <el-col :span="12">
+                        <el-button type="primary" @click="submitForm">提交</el-button>
+                    </el-col>
+                    <el-col :span="12">
+                        <el-button type="primary">下一条</el-button>
+                    </el-col>
+                </el-row>
+            </el-form-item>
         </el-form>
     </div>
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive } from 'vue'; 
-
+import { defineComponent, onBeforeMount, onMounted, reactive } from 'vue'; 
 export default defineComponent({
     name: 'Home',
     setup() {
+        let url = "", query = '', data = undefined
         const form = reactive({
             name: '',
             url: '',
@@ -43,8 +53,34 @@ export default defineComponent({
             latestText: '',
             inputText: ''
         })
+        onBeforeMount(async() => {
+            url = window.location.href
+            query = url?.split('?')[1]?.split('=')[1]
+            const res = await fetch(
+                `http://10.55.23.23:1234/get_msg`, {
+                    method: 'post',
+                    body: JSON.stringify({msgid: query})
+                })
+            .then(res => res.json())
+            data = res.data[0]
+            form.originText = data.msgen
+            form.latestText = data.msgzh
+        })
+
+
+        // onMounted(async() => {
+
+
+        // })
+        
+        const submitForm = () => {
+            console.log('aaaaaaaaaaaaaaaaaa', form)
+        }
+
         return {
-            form
+            form,
+            submitForm,
+            data
         };
     }
 });
@@ -58,4 +94,8 @@ export default defineComponent({
     padding-top: 20px;
 }
 
+.title {
+    text-align: center;
+    margin-bottom: 20px;
+}
 </style>
