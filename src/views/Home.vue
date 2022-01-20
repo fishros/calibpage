@@ -17,8 +17,8 @@
                     </el-form-item>
                 </el-col>
             </el-row>
-            <el-form-item label="原文内容：">
-                <el-input v-model="form.originText" type="textarea" readonly></el-input>
+            <el-form-item label="原文内容：" >
+                <el-input v-model="form.originText" type="textarea" readonly autosize></el-input>
             </el-form-item>
             <el-form-item label="上一版本翻译内容：">
                 <el-input v-model="form.latestText" type="textarea" autosize readonly></el-input>
@@ -32,7 +32,7 @@
                         <el-button type="primary" @click="submitForm">提交</el-button>
                     </el-col>
                     <el-col :span="12">
-                        <el-button type="primary">下一条</el-button>
+                        <el-button type="primary" @click="getNextMsg">下一条</el-button>
                     </el-col>
                 </el-row>
             </el-form-item>
@@ -74,6 +74,17 @@ export default defineComponent({
             }]
         })
 
+        const getNextMsg = async() => {
+            await http('next_msg', {data: { "msgid": query }}).then(res => {
+                console.log(res, 'getNextMsg')
+                form.originText = res[0].msgen
+                form.latestText = res[0].msgzh
+                form.newText = res[0].msgzh
+                query = res[0].msgid
+            }        
+            )
+        }
+
         onBeforeMount(async() => {
             url = window.location.href
             query = url?.split('?')[1]?.split('=')[1]
@@ -95,7 +106,8 @@ export default defineComponent({
             form,
             submitForm,
             data,
-            rules
+            rules,
+            getNextMsg
         };
     }
 });
