@@ -17,5 +17,10 @@ export default defineConfig({
   ],
   server: {				
     host: '0.0.0.0'	
-  }	
+  },
+  define: {
+    'process.env': {
+      'BASE_API': 'http://10.55.23.23:1234'
+    }
+  }
 })

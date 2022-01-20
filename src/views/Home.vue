@@ -21,10 +21,10 @@
                 <el-input v-model="form.originText" type="textarea"></el-input>
             </el-form-item>
             <el-form-item label="上一版本翻译内容：">
-                <el-input v-model="form.latestText" type="textarea"></el-input>
+                <el-input v-model="form.latestText" type="textarea" autosize></el-input>
             </el-form-item>
             <el-form-item label="新的翻译内容：">
-                <el-input v-model="form.inputText" type="textarea"></el-input>
+                <el-input v-model="form.inputText" type="textarea" autosize></el-input>
             </el-form-item>
             <el-form-item>
                 <el-row justify="center">
@@ -41,7 +41,8 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, onMounted, reactive } from 'vue'; 
+import { defineComponent, onBeforeMount, reactive } from 'vue'; 
+import { http } from '../utils/http';
 export default defineComponent({
     name: 'Home',
     setup() {
@@ -56,22 +57,15 @@ export default defineComponent({
         onBeforeMount(async() => {
             url = window.location.href
             query = url?.split('?')[1]?.split('=')[1]
-            const res = await fetch(
-                `http://10.55.23.23:1234/get_msg`, {
-                    method: 'post',
-                    body: JSON.stringify({msgid: query})
-                })
-            .then(res => res.json())
-            data = res.data[0]
-            form.originText = data.msgen
-            form.latestText = data.msgzh
+
+            await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
+                console.log(res, 'rrrrrrrr')
+                form.originText = res[0].msgen
+                form.latestText = res[0].msgzh
+                form.inputText = res[0].msgzh
+            }        
+            )
         })
-
-
-        // onMounted(async() => {
-
-
-        // })
         
         const submitForm = () => {
             console.log('aaaaaaaaaaaaaaaaaa', form)
