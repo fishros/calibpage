@@ -4,27 +4,27 @@
         <h2 class="title">　欢迎加入 鱼香ROS　翻译组织　</h2>
         <el-row></el-row>
         <!-- 表单部分 -->
-        <el-form ref="formRef" :model="form" label-width="auto">
+        <el-form ref="formRef" :model="form" label-width="auto" :rules="rules">
             <el-row justify="center" align="center">
                 <el-col :span="12">
-                    <el-form-item label="昵称">
+                    <el-form-item label="昵称" prop="name">
                         <el-input v-model="form.name" ></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="12">
-                    <el-form-item label="主页">
-                        <el-input v-model="form.url"></el-input>
+                    <el-form-item label="github主页" prop="github">
+                        <el-input v-model="form.github"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
             <el-form-item label="原文内容：">
-                <el-input v-model="form.originText" type="textarea"></el-input>
+                <el-input v-model="form.originText" type="textarea" readonly></el-input>
             </el-form-item>
             <el-form-item label="上一版本翻译内容：">
-                <el-input v-model="form.latestText" type="textarea" autosize></el-input>
+                <el-input v-model="form.latestText" type="textarea" autosize readonly></el-input>
             </el-form-item>
-            <el-form-item label="新的翻译内容：">
-                <el-input v-model="form.inputText" type="textarea" autosize></el-input>
+            <el-form-item label="新的翻译内容：" prop="newText">
+                <el-input v-model="form.newText" type="textarea" autosize></el-input>
             </el-form-item>
             <el-form-item>
                 <el-row justify="center">
@@ -52,8 +52,28 @@ export default defineComponent({
             url: '',
             originText: '',
             latestText: '',
-            inputText: ''
+            newText: ''
         })
+
+        const rules = reactive({
+            name: [{
+                min: 3,
+                max: 25,
+                message: '昵称长度需要为3到25之间',
+                trigger: 'blur',
+            }],
+            github: [{
+                required: true,
+                message: 'github 主页地址不能为空',
+                trigger: 'blur',
+            }],
+            newText: [{
+                required: true,
+                message: '翻译内容不能为空',
+                trigger: 'blur'
+            }]
+        })
+
         onBeforeMount(async() => {
             url = window.location.href
             query = url?.split('?')[1]?.split('=')[1]
@@ -62,19 +82,20 @@ export default defineComponent({
                 console.log(res, 'rrrrrrrr')
                 form.originText = res[0].msgen
                 form.latestText = res[0].msgzh
-                form.inputText = res[0].msgzh
+                form.newText = res[0].msgzh
             }        
             )
         })
         
         const submitForm = () => {
-            console.log('aaaaaaaaaaaaaaaaaa', form)
+            
         }
 
         return {
             form,
             submitForm,
-            data
+            data,
+            rules
         };
     }
 });
