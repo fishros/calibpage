@@ -6,14 +6,19 @@
         <!-- 表单部分 -->
         <el-form ref="formRef" :model="form" label-width="auto" :rules="rules">
             <el-row justify="center" align="center">
-                <el-col :span="12">
-                    <el-form-item label="昵称" prop="name">
-                        <el-input v-model="form.name" ></el-input>
+                <el-col :span="8">
+                    <el-form-item label="昵称：" prop="username">
+                        <el-input v-model="form.username" ></el-input>
                     </el-form-item>
                 </el-col>
-                <el-col :span="12">
-                    <el-form-item label="github主页" prop="github">
+                <el-col :span="8">
+                    <el-form-item label="github主页：" prop="github">
                         <el-input v-model="form.github"></el-input>
+                    </el-form-item>
+                </el-col>
+                <el-col :span="8">
+                    <el-form-item label="邮箱：" prop="email">
+                        <el-input v-model="form.email"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -41,22 +46,27 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, reactive } from 'vue'; 
+import { defineComponent, onBeforeMount, reactive, ref } from 'vue'; 
 import { http } from '../utils/http';
+import { ElMessage } from 'element-plus'
+
 export default defineComponent({
     name: 'Home',
     setup() {
         let url = "", query = '', data = undefined
+
+        const formRef = ref()
         const form = reactive({
-            name: '',
-            url: '',
+            username: '',
+            github: '',
             originText: '',
             latestText: '',
-            newText: ''
+            newText: '',
+            email: ''
         })
 
         const rules = reactive({
-            name: [{
+            username: [{
                 min: 3,
                 max: 25,
                 message: '昵称长度需要为3到25之间',
@@ -70,6 +80,11 @@ export default defineComponent({
             newText: [{
                 required: true,
                 message: '翻译内容不能为空',
+                trigger: 'blur'
+            }],
+            email: [{
+                required: true,
+                message: '',
                 trigger: 'blur'
             }]
         })
@@ -90,16 +105,35 @@ export default defineComponent({
             query = url?.split('?')[1]?.split('=')[1]
 
             await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
-                console.log(res, 'rrrrrrrr')
                 form.originText = res[0].msgen
                 form.latestText = res[0].msgzh
                 form.newText = res[0].msgzh
             }        
             )
         })
-        
+
         const submitForm = () => {
-            
+            formRef.value.validate((valid: boolean) => {
+                if(valid) {
+                    const calibmsg = form.newText
+                    const data = {
+                        calibmsg,
+                        msgid: query,
+                        name: form.username,
+                        github: form.github,
+                        email: form.email
+                    }
+                    http('calib_msg', {data, method: 'POST'}).then(res => {
+                        console.log(res, 'submitForm')
+                          ElMessage({
+                            message: '提交成功，棒棒哒！',
+                            type: 'success',
+                        })
+                    })
+                } else{
+                    console.log('fail')
+                }
+            })
         }
 
         return {
@@ -107,7 +141,8 @@ export default defineComponent({
             submitForm,
             data,
             rules,
-            getNextMsg
+            getNextMsg,
+            formRef
         };
     }
 });
