@@ -46,9 +46,9 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, reactive, ref } from 'vue'; 
+import { defineComponent, onBeforeMount, reactive, ref, h } from 'vue'; 
 import { http } from '../utils/http';
-import { ElMessage } from 'element-plus'
+import { ElMessage, ElNotification } from 'element-plus'
 
 export default defineComponent({
     name: 'Home',
@@ -131,7 +131,11 @@ export default defineComponent({
                         })
                     })
                 } else{
-                    console.log('fail')
+                        ElNotification({
+                            title: 'Error',
+                            message: 'This is an error message',
+                            type: 'error',
+                        })
                 }
             })
         }
