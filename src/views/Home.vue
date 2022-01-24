@@ -8,17 +8,17 @@
             <el-row justify="center" align="center">
                 <el-col :span="8">
                     <el-form-item label="昵称：" prop="username">
-                        <el-input v-model="form.username" ></el-input>
+                        <el-input v-model="form.username" placeholder="请输入您的昵称"></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="8">
                     <el-form-item label="github主页：" prop="github">
-                        <el-input v-model="form.github"></el-input>
+                        <el-input v-model="form.github" placeholder="请输入您的github主页地址"></el-input>
                     </el-form-item>
                 </el-col>
                 <el-col :span="8">
                     <el-form-item label="邮箱：" prop="email">
-                        <el-input v-model="form.email"></el-input>
+                        <el-input v-model="form.email" placeholder="请输入您的邮箱地址"></el-input>
                     </el-form-item>
                 </el-col>
             </el-row>
@@ -29,7 +29,7 @@
                 <el-input v-model="form.latestText" type="textarea" autosize readonly></el-input>
             </el-form-item>
             <el-form-item label="新的翻译内容：" prop="newText">
-                <el-input v-model="form.newText" type="textarea" autosize></el-input>
+                <el-input v-model="form.newText" type="textarea" autosize placeholder="请输入您校准之后的内容"></el-input>
             </el-form-item>
             <el-form-item>
                 <el-row justify="center">
@@ -46,7 +46,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, reactive, ref, h } from 'vue'; 
+import { defineComponent, onBeforeMount, reactive, ref} from 'vue'; 
 import { http } from '../utils/http';
 import { ElMessage, ElNotification } from 'element-plus'
 
@@ -90,26 +90,44 @@ export default defineComponent({
         })
 
         const getNextMsg = async() => {
-            await http('next_msg', {data: { "msgid": query }}).then(res => {
-                console.log(res, 'getNextMsg')
-                form.originText = res[0].msgen
-                form.latestText = res[0].msgzh
-                form.newText = res[0].msgzh
-                query = res[0].msgid
-            }        
+            if(query){
+            const userinfo = window.localStorage.getItem('tw')
+                await http('next_msg', {data: { "msgid": query }}).then(res => {
+                    console.log(res, 'getNextMsg')
+                    form.originText = res[0].msgen
+                    form.latestText = res[0].msgzh
+                    form.newText = res[0].msgzh
+                    query = res[0].msgid
+                    if(userinfo) {
+                        const {name, github, email} = JSON.parse(userinfo)
+                        form.username = name
+                        form.github = github
+                        form.email = email
+                    }
+                }        
             )
+            }
         }
 
         onBeforeMount(async() => {
             url = window.location.href
             query = url?.split('?')[1]?.split('=')[1]
-
-            await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
+            const userinfo = window.localStorage.getItem('tw')
+            if(query) {
+                await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
                 form.originText = res[0].msgen
                 form.latestText = res[0].msgzh
                 form.newText = res[0].msgzh
-            }        
-            )
+                if(userinfo) {
+                    const {name, github, email} = JSON.parse(userinfo)
+                    form.username = name
+                    form.github = github
+                    form.email = email
+                }
+            })
+            }else {
+                ElNotification.info('请从 Nav2 中文网页面进入')
+            }
         })
 
         const submitForm = () => {
@@ -129,7 +147,12 @@ export default defineComponent({
                             message: '提交成功，棒棒哒！',
                             type: 'success',
                         })
+                        const {calibmsg, msgid, ...userinfo} = data
+                        window.localStorage.setItem('tw', JSON.stringify(userinfo))
+                    }).catch(e => {
+                        ElMessage.error(e)
                     })
+                    
                 } else{
                         ElNotification({
                             title: 'Error',
