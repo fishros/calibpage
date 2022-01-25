@@ -49,12 +49,13 @@
 import { defineComponent, onBeforeMount, reactive, ref} from 'vue'; 
 import { http } from '../utils/http';
 import { ElMessage, ElNotification } from 'element-plus'
+import { setLocalStorage, getLocalStorage, getQueryUrl} from '../utils/utils'
 
 export default defineComponent({
     name: 'Home',
     setup() {
-        let url = "", query = '', data = undefined
-
+        let data = undefined
+        let query = getQueryUrl()
         const formRef = ref()
         const form = reactive({
             username: '',
@@ -91,15 +92,14 @@ export default defineComponent({
 
         const getNextMsg = async() => {
             if(query){
-            const userinfo = window.localStorage.getItem('tw')
+            const userinfo = getLocalStorage('tw')
                 await http('next_msg', {data: { "msgid": query }}).then(res => {
-                    console.log(res, 'getNextMsg')
                     form.originText = res[0].msgen
                     form.latestText = res[0].msgzh
                     form.newText = res[0].msgzh
                     query = res[0].msgid
                     if(userinfo) {
-                        const {name, github, email} = JSON.parse(userinfo)
+                        const {name, github, email} = userinfo
                         form.username = name
                         form.github = github
                         form.email = email
@@ -110,16 +110,14 @@ export default defineComponent({
         }
 
         onBeforeMount(async() => {
-            url = window.location.href
-            query = url?.split('?')[1]?.split('=')[1]
-            const userinfo = window.localStorage.getItem('tw')
+            const userinfo = getLocalStorage('tw')
             if(query) {
                 await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
                 form.originText = res[0].msgen
                 form.latestText = res[0].msgzh
                 form.newText = res[0].msgzh
                 if(userinfo) {
-                    const {name, github, email} = JSON.parse(userinfo)
+                    const {name, github, email} = userinfo
                     form.username = name
                     form.github = github
                     form.email = email
@@ -148,7 +146,7 @@ export default defineComponent({
                             type: 'success',
                         })
                         const {calibmsg, msgid, ...userinfo} = data
-                        window.localStorage.setItem('tw', JSON.stringify(userinfo))
+                    setLocalStorage('tw', userinfo)
                     }).catch(e => {
                         ElMessage.error(e)
                     })
