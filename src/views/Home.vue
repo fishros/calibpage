@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!-- 标题部分 -->
-        <h2 class="title">　欢迎加入 鱼香ROS　翻译组织　</h2>
+        <h2 class="title">　开源互助 共同进步 感谢您的校正　</h2>
         <el-row></el-row>
         <!-- 表单部分 -->
         <el-form ref="formRef" :model="form" label-width="auto" :rules="rules">
