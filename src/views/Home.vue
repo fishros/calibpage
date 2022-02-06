@@ -1,7 +1,7 @@
 <template>
     <div class="container">
         <!-- 标题部分 -->
-        <h2 class="title">　开源互助 共同进步 感谢您的校正　</h2>
+        <h2 class="title"> 开源互助 共同进步 感谢您的校正 </h2>
         <el-row></el-row>
         <!-- 表单部分 -->
         <el-form ref="formRef" :model="form" label-width="auto" :rules="rules">
@@ -33,11 +33,14 @@
             </el-form-item>
             <el-form-item>
                 <el-row justify="center">
-                    <el-col :span="12">
+                    <el-col :span="8">
                         <el-button type="primary" @click="submitForm">提交</el-button>
                     </el-col>
-                    <el-col :span="12">
+                    <el-col :span="8">
                         <el-button type="primary" @click="getNextMsg">下一条</el-button>
+                    </el-col>
+                    <el-col :span="8">
+                        <el-button type="primary" @click="submitFormTitle">标记标题并提交</el-button>
                     </el-col>
                 </el-row>
             </el-form-item>
@@ -68,9 +71,9 @@ export default defineComponent({
 
         const rules = reactive({
             username: [{
-                min: 3,
+                min: 2,
                 max: 25,
-                message: '昵称长度需要为3到25之间',
+                message: '昵称长度需要为2到25之间',
                 trigger: 'blur',
             }],
             github: [{
@@ -161,9 +164,43 @@ export default defineComponent({
             })
         }
 
+        const submitFormTitle = () => {
+            formRef.value.validate((valid: boolean) => {
+                if(valid) {
+                    const calibmsg = form.newText
+                    const data = {
+                        calibmsg,
+                        msgid: query,
+                        name: form.username,
+                        github: form.github,
+                        email: form.email,
+                        status: 200
+                    }
+                    http('calib_msg', {data, method: 'POST'}).then(res => {
+                        console.log(res, 'submitForm')
+                          ElMessage({
+                            message: '提交成功，棒棒哒！',
+                            type: 'success',
+                        })
+                        const {calibmsg, msgid, ...userinfo} = data
+                    setLocalStorage('tw', userinfo)
+                    }).catch(e => {
+                        ElMessage.error(e)
+                    })
+                    
+                } else{
+                        ElNotification({
+                            title: 'Error',
+                            message: 'This is an error message',
+                            type: 'error',
+                        })
+                }
+            })
+        }
         return {
             form,
             submitForm,
+            submitFormTitle,
             data,
             rules,
             getNextMsg,
