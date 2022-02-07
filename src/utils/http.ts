@@ -9,6 +9,7 @@ export const http = async (
     endpoint: string,
     { data, ...customConfig }: Config = {}
 ) => {
+    console.log(apiUrl, 'apiUrl')
     const config = {
         method: 'GET',
         // headers: {

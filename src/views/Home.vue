@@ -2,7 +2,6 @@
     <div class="container">
         <!-- 标题部分 -->
         <h2 class="title"> 开源互助 共同进步 感谢您的校正 </h2>
-        <el-row></el-row>
         <!-- 表单部分 -->
         <el-form ref="formRef" :model="form" label-width="auto" :rules="rules">
             <el-row justify="center" align="center">
@@ -69,6 +68,38 @@ export default defineComponent({
             email: ''
         })
 
+        const regEmail = /^[A-Za-z0-9\u4e00-\u9fa5]+@[a-zA-Z0-9_-]+(\.[a-zA-Z0-9_-]+)+$/
+        const regGithub = /^https:\/\/github.com.*$/
+
+        const validEmail = (rule: any, value: any, callback: any) => {
+            if (value === '') {
+                callback(new Error('请输入您的邮箱地址'))
+            } else if(!regEmail.test(form.email)) {
+                callback(new Error('邮箱格式不正确'))
+            }
+            callback() 
+        }
+
+        const validateNewText = (rule: any, value: any, callback: any) => {
+            if (value === '') {
+                callback(new Error('请输入您校准之后的内容'))
+            } else {
+                if(form.newText === form.latestText) {
+                    callback(new Error('请输入您校准之后的内容'))
+                }
+                callback()
+            }
+        }
+
+        const validateGithub = (rule: any, value: any, callback: any) => {
+            if(value === '') {
+                callback(new Error('请输入您的github主页地址'))
+            } else if(!regGithub.test(form.github)) {
+                callback(new Error('github主页地址不正确，请以https://github.com开头'))
+            }
+            callback()
+        }
+
         const rules = reactive({
             username: [{
                 min: 2,
@@ -77,18 +108,18 @@ export default defineComponent({
                 trigger: 'blur',
             }],
             github: [{
+                validator: validateGithub,
                 required: true,
-                message: 'github 主页地址不能为空',
                 trigger: 'blur',
             }],
             newText: [{
+                validator: validateNewText,
                 required: true,
-                message: '翻译内容不能为空',
                 trigger: 'blur'
             }],
             email: [{
+                validator: validEmail,
                 required: true,
-                message: '',
                 trigger: 'blur'
             }]
         })
@@ -157,7 +188,7 @@ export default defineComponent({
                 } else{
                         ElNotification({
                             title: 'Error',
-                            message: 'This is an error message',
+                            message: '输入有误，请检查您输入的内容',
                             type: 'error',
                         })
                 }
