@@ -32,14 +32,17 @@
             </el-form-item>
             <el-form-item>
                 <el-row justify="center">
-                    <el-col :span="8">
+                    <el-col :span="6">
                         <el-button type="primary" @click="submitForm">提交</el-button>
                     </el-col>
-                    <el-col :span="8">
+                    <el-col :span="6">
                         <el-button type="primary" @click="getNextMsg">下一条</el-button>
                     </el-col>
-                    <el-col :span="8">
-                        <el-button type="primary" @click="submitFormTitle">标记标题并提交</el-button>
+                    <el-col :span="6">
+                        <el-button type="primary" @click="submitFormTitle">标记标题</el-button>
+                    </el-col>
+                    <el-col :span="6">
+                        <el-button type="primary" @click="submitFormUnTrans">标记无需翻译</el-button>
                     </el-col>
                 </el-row>
             </el-form-item>
@@ -196,42 +199,59 @@ export default defineComponent({
         }
 
         const submitFormTitle = () => {
-            formRef.value.validate((valid: boolean) => {
-                if(valid) {
-                    const calibmsg = form.newText
-                    const data = {
-                        calibmsg,
-                        msgid: query,
-                        name: form.username,
-                        github: form.github,
-                        email: form.email,
-                        status: 200
-                    }
-                    http('calib_msg', {data, method: 'POST'}).then(res => {
-                        console.log(res, 'submitForm')
-                          ElMessage({
-                            message: '提交成功，棒棒哒！',
-                            type: 'success',
-                        })
-                        const {calibmsg, msgid, ...userinfo} = data
-                    setLocalStorage('tw', userinfo)
-                    }).catch(e => {
-                        ElMessage.error(e)
-                    })
-                    
-                } else{
-                        ElNotification({
-                            title: 'Error',
-                            message: 'This is an error message',
-                            type: 'error',
-                        })
+            const calibmsg = form.newText
+                const data = {
+                    calibmsg,
+                    msgid: query,
+                    name: form.username,
+                    github: form.github,
+                    email: form.email,
+                    status: 200
                 }
+                http('calib_msg', {data, method: 'POST'}).then(res => {
+                    console.log(res, 'submitForm')
+                        ElMessage({
+                        message: '提交成功，棒棒哒！',
+                        type: 'success',
+                    })
+                    const {calibmsg, msgid, ...userinfo} = data
+                setLocalStorage('tw', userinfo)
+                }).catch(e => {
+                    ElMessage.error(e)
+                })
             })
         }
+
+        const submitFormUnTrans = () => {
+                const calibmsg = form.newText
+                const data = {
+                    calibmsg,
+                    msgid: query,
+                    name: form.username,
+                    github: form.github,
+                    email: form.email,
+                    status: 201
+                }
+                http('calib_msg', {data, method: 'POST'}).then(res => {
+                    console.log(res, 'submitForm')
+                        ElMessage({
+                        message: '提交成功，棒棒哒！',
+                        type: 'success',
+                    })
+                    const {calibmsg, msgid, ...userinfo} = data
+                setLocalStorage('tw', userinfo)
+                }).catch(e => {
+                    ElMessage.error(e)
+                })
+            })
+        }
+
+
         return {
             form,
             submitForm,
             submitFormTitle,
+            submitFormUnTrans,
             data,
             rules,
             getNextMsg,
