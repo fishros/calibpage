@@ -31,20 +31,16 @@
                 <el-input v-model="form.newText" type="textarea" autosize placeholder="请输入您校准之后的内容"></el-input>
             </el-form-item>
             <el-form-item>
-                <el-row justify="center">
-                    <el-col :span="6">
-                        <el-button type="primary" @click="submitForm">提交</el-button>
-                    </el-col>
-                    <el-col :span="6">
-                        <el-button type="primary" @click="getNextMsg">下一条</el-button>
-                    </el-col>
-                    <el-col :span="6">
+                <div class="btns">
+                    <div>
                         <el-button type="primary" @click="submitFormTitle">标记标题</el-button>
-                    </el-col>
-                    <el-col :span="6">
                         <el-button type="primary" @click="submitFormUnTrans">标记无需翻译</el-button>
-                    </el-col>
-                </el-row>
+                    </div>
+                    <div>
+                        <el-button type="primary" @click="submitForm">提交</el-button>
+                        <el-button type="primary" @click="getNextMsg">下一条</el-button>
+                    </div>
+                </div>
             </el-form-item>
         </el-form>
     </div>
@@ -219,7 +215,6 @@ export default defineComponent({
                 }).catch(e => {
                     ElMessage.error(e)
                 })
-            })
         }
 
         const submitFormUnTrans = () => {
@@ -243,7 +238,6 @@ export default defineComponent({
                 }).catch(e => {
                     ElMessage.error(e)
                 })
-            })
         }
 
 
@@ -273,4 +267,11 @@ export default defineComponent({
     text-align: center;
     margin-bottom: 20px;
 }
+
+.btns{
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
 </style>
