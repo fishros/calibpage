@@ -43,12 +43,36 @@
                 </div>
             </el-form-item>
         </el-form>
+        <!-- 翻译记录部分 -->
+        <h3 class="logTitle">校准更新记录：</h3>
+        <el-timeline v-if="changeLog.length > 0">
+            <el-timeline-item
+            placement="top"
+            v-for="(item, index) in changeLog"
+            :key="index"
+            :timestamp="formatGMT(item?.update_time)"
+            >
+                <el-card>
+                    <h4 class="calibmsg-title">
+                        <a :href="item?.github" target="_blank">
+                            {{item?.contributor}}
+                        </a>
+                        校准于 {{formatGMT(item?.update_time)}}
+                    </h4>
+                    <p>
+                        {{ item?.calibmsg }}
+                    </p>    
+                </el-card>
+            </el-timeline-item>
+        </el-timeline>
+        <p v-else>当前暂无校准内容，快来校准吧~</p>
     </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, onBeforeMount, reactive, ref} from 'vue'; 
 import { http } from '../utils/http';
+import { formatGMT } from '../utils/utils';
 import { ElMessage, ElNotification } from 'element-plus'
 import { setLocalStorage, getLocalStorage, getQueryUrl} from '../utils/utils'
 
@@ -56,6 +80,7 @@ export default defineComponent({
     name: 'Home',
     setup() {
         let data = undefined
+        const changeLog = ref()
         let query = getQueryUrl()
         const formRef = ref()
         const form = reactive({
@@ -83,7 +108,7 @@ export default defineComponent({
             if (value === '') {
                 callback(new Error('请输入您校准之后的内容'))
             } else {
-                if(form.newText === form.latestText) {
+                if(form.newText.trim() === form.latestText) {
                     callback(new Error('请输入您校准之后的内容'))
                 }
                 callback()
@@ -127,10 +152,10 @@ export default defineComponent({
             if(query){
             const userinfo = getLocalStorage('tw')
                 await http('next_msg', {data: { "msgid": query }}).then(res => {
-                    form.originText = res[0].msgen
-                    form.latestText = res[0].msgzh
-                    form.newText = res[0].msgzh
-                    query = res[0].msgid
+                    form.originText = res[0]?.msgen
+                    form.latestText = res[0]?.msgzh
+                    form.newText = res[0]?.msgzh
+                    query = res[0]?.msgid
                     if(userinfo) {
                         const {name, github, email} = userinfo
                         form.username = name
@@ -142,13 +167,14 @@ export default defineComponent({
             }
         }
 
-        onBeforeMount(async() => {
+        const updateForm = async() => {
             const userinfo = getLocalStorage('tw')
-            if(query) {
-                await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
+            await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
                 form.originText = res[0].msgen
                 form.latestText = res[0].msgzh
                 form.newText = res[0].msgzh
+                changeLog.value = res[0].change_log
+                console.log(changeLog, res[0].change_log)
                 if(userinfo) {
                     const {name, github, email} = userinfo
                     form.username = name
@@ -156,15 +182,21 @@ export default defineComponent({
                     form.email = email
                 }
             })
+        }
+
+        onBeforeMount(async() => {
+            if(query) {
+                await updateForm()
+                console.log('changeLog', changeLog)
             }else {
                 ElNotification.info('请从 Nav2 中文网页面进入')
             }
         })
 
         const submitForm = () => {
-            formRef.value.validate((valid: boolean) => {
+            formRef.value.validate( (valid: boolean) => {
                 if(valid) {
-                    const calibmsg = form.newText
+                    const calibmsg = form.newText.trim()
                     const data = {
                         calibmsg,
                         msgid: query,
@@ -172,14 +204,15 @@ export default defineComponent({
                         github: form.github,
                         email: form.email
                     }
-                    http('calib_msg', {data, method: 'POST'}).then(res => {
+                    http('calib_msg', {data, method: 'POST'}).then(async res => {
                         console.log(res, 'submitForm')
                           ElMessage({
                             message: '提交成功，棒棒哒！',
                             type: 'success',
                         })
                         const {calibmsg, msgid, ...userinfo} = data
-                    setLocalStorage('tw', userinfo)
+                        setLocalStorage('tw', userinfo)
+                        await updateForm()
                     }).catch(e => {
                         ElMessage.error(e)
                     })
@@ -195,7 +228,7 @@ export default defineComponent({
         }
 
         const submitFormTitle = () => {
-            const calibmsg = form.newText
+            const calibmsg = form.newText.trim()
                 const data = {
                     calibmsg,
                     msgid: query,
@@ -218,7 +251,7 @@ export default defineComponent({
         }
 
         const submitFormUnTrans = () => {
-                const calibmsg = form.newText
+                const calibmsg = form.newText.trim()
                 const data = {
                     calibmsg,
                     msgid: query,
@@ -249,7 +282,9 @@ export default defineComponent({
             data,
             rules,
             getNextMsg,
-            formRef
+            formRef,
+            changeLog, 
+            formatGMT
         };
     }
 });
@@ -274,4 +309,16 @@ export default defineComponent({
     justify-content: space-between;
 }
 
+.el-timeline{
+    min-height: 500px;
+}
+
+.logTitle {
+    margin-bottom: 10px;
+}
+
+.calibmsg-title {
+    margin-bottom: 10px;
+    font-size: 16px;
+}
 </style>
