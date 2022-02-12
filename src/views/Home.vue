@@ -193,6 +193,7 @@ export default defineComponent({
             }
         })
 
+        // 提交
         const submitForm = () => {
             formRef.value.validate( (valid: boolean) => {
                 if(valid) {
@@ -207,8 +208,9 @@ export default defineComponent({
                     http('calib_msg', {data, method: 'POST'}).then(async res => {
                         console.log(res, 'submitForm')
                           ElMessage({
-                            message: '提交成功，棒棒哒！',
+                            message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                             type: 'success',
+                            duration: 6000
                         })
                         const {calibmsg, msgid, ...userinfo} = data
                         setLocalStorage('tw', userinfo)
@@ -227,6 +229,7 @@ export default defineComponent({
             })
         }
 
+        // 标记无需翻译
         const submitFormTitle = () => {
             const calibmsg = form.newText.trim()
                 const data = {
@@ -240,8 +243,9 @@ export default defineComponent({
                 http('calib_msg', {data, method: 'POST'}).then(res => {
                     console.log(res, 'submitForm')
                         ElMessage({
-                        message: '提交成功，棒棒哒！',
+                        message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                         type: 'success',
+                        duration: 6000
                     })
                     const {calibmsg, msgid, ...userinfo} = data
                 setLocalStorage('tw', userinfo)
@@ -250,6 +254,7 @@ export default defineComponent({
                 })
         }
 
+        // 标记无需翻译
         const submitFormUnTrans = () => {
                 const calibmsg = form.newText.trim()
                 const data = {
@@ -261,10 +266,11 @@ export default defineComponent({
                     status: 201
                 }
                 http('calib_msg', {data, method: 'POST'}).then(res => {
-                    console.log(res, 'submitForm')
+                    console.log(res.calibcount, 'submitForm')
                         ElMessage({
-                        message: '提交成功，棒棒哒！',
+                        message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                         type: 'success',
+                        duration: 6000
                     })
                     const {calibmsg, msgid, ...userinfo} = data
                 setLocalStorage('tw', userinfo)
