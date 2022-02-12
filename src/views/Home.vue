@@ -45,7 +45,7 @@
         </el-form>
         <!-- 翻译记录部分 -->
         <h3 class="logTitle">校准更新记录：</h3>
-        <el-timeline v-if="changeLog.length > 0">
+        <el-timeline v-if="changeLog?.length > 0">
             <el-timeline-item
             placement="top"
             v-for="(item, index) in changeLog"
@@ -174,7 +174,6 @@ export default defineComponent({
                 form.latestText = res[0].msgzh
                 form.newText = res[0].msgzh
                 changeLog.value = res[0].change_log
-                console.log(changeLog, res[0].change_log)
                 if(userinfo) {
                     const {name, github, email} = userinfo
                     form.username = name
@@ -187,7 +186,6 @@ export default defineComponent({
         onBeforeMount(async() => {
             if(query) {
                 await updateForm()
-                console.log('changeLog', changeLog)
             }else {
                 ElNotification.info('请从 Nav2 中文网页面进入')
             }
@@ -206,7 +204,6 @@ export default defineComponent({
                         email: form.email
                     }
                     http('calib_msg', {data, method: 'POST'}).then(async res => {
-                        console.log(res, 'submitForm')
                           ElMessage({
                             message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                             type: 'success',
@@ -241,7 +238,6 @@ export default defineComponent({
                     status: 200
                 }
                 http('calib_msg', {data, method: 'POST'}).then(res => {
-                    console.log(res, 'submitForm')
                         ElMessage({
                         message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                         type: 'success',
@@ -266,7 +262,6 @@ export default defineComponent({
                     status: 201
                 }
                 http('calib_msg', {data, method: 'POST'}).then(res => {
-                    console.log(res.calibcount, 'submitForm')
                         ElMessage({
                         message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                         type: 'success',
