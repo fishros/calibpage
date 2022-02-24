@@ -1,7 +1,9 @@
 <template>
-    <div class="container">
+    <el-tabs v-model="activeName"  @tab-click="handleClickTab" value>
+        <el-tab-pane label="校准页" name="calibpage">
+        <div class="container">
         <!-- 标题部分 -->
-        <h2 class="title"> 开源互助 共同进步 感谢您的校正 </h2>
+        <h2 class="title">开源互助，共同提高</h2>
         <!-- 表单部分 -->
         <el-form ref="formRef" :model="form" label-width="auto" :rules="rules">
             <el-row justify="center" align="center">
@@ -67,10 +69,28 @@
         </el-timeline>
         <p v-else>当前暂无校准内容，快来校准吧~</p>
     </div>
+        </el-tab-pane>
+        <el-tab-pane label="排行榜" name="rank">
+            <el-table :data="rankData" style="width: 70%"
+            :header-cell-style="{'text-align': 'center', 'color': '#333'}"
+            border
+            >
+                <el-table-column type="index" label="排名" align="center" width='180'/>
+                <el-table-column prop="name" label="贡献者名称"  align="center">
+                    <template #default="scope">
+                        <a :href="scope.row.github">{{scope.row.name}}</a>
+                    </template>
+                </el-table-column>
+                <el-table-column prop="p_count" label="校准段落总计" align="center"/>
+                <!-- <el-table-column prop="word_count" label="校准词汇总计" /> -->
+            </el-table>
+        </el-tab-pane>
+    </el-tabs>
+
 </template>
 
 <script lang="ts">
-import { defineComponent, onBeforeMount, reactive, ref} from 'vue'; 
+import { defineComponent, onBeforeMount, onMounted, reactive, ref} from 'vue'; 
 import { http } from '../utils/http';
 import { formatGMT } from '../utils/utils';
 import { ElMessage, ElNotification } from 'element-plus'
@@ -80,7 +100,9 @@ export default defineComponent({
     name: 'Home',
     setup() {
         let data = undefined
+        let rankData = ref()
         const changeLog = ref()
+        const activeName = ref('calibpage')
         let query = getQueryUrl()
         const formRef = ref()
         const form = reactive({
@@ -186,9 +208,15 @@ export default defineComponent({
         onBeforeMount(async() => {
             if(query) {
                 await updateForm()
+                await getRankData()
+
             }else {
                 ElNotification.info('请从 Nav2 中文网页面进入')
             }
+        })
+
+        onMounted(async() => {
+            await getRankData()
         })
 
         // 提交
@@ -274,6 +302,18 @@ export default defineComponent({
                 })
         }
 
+        const handleClickTab = (tab: string, event: Event) => {
+            console.log(tab, event)
+        }
+
+        // 获取排行榜数据
+        const getRankData = () => {
+            http('calib_rank').then(res => {
+                console.log(res, 'rankres')
+                rankData.value = res
+                console.log(rankData.value, 'rankData')
+            })
+        }
 
         return {
             form,
@@ -285,7 +325,10 @@ export default defineComponent({
             getNextMsg,
             formRef,
             changeLog, 
-            formatGMT
+            formatGMT, 
+            handleClickTab,
+            rankData,
+            activeName
         };
     }
 });
@@ -300,8 +343,10 @@ export default defineComponent({
 }
 
 .title {
-    text-align: center;
+    text-align: left;
+    font-size: 20px;
     margin-bottom: 20px;
+    margin-left: 100px;
 }
 
 .btns{
@@ -322,4 +367,22 @@ export default defineComponent({
     margin-bottom: 10px;
     font-size: 16px;
 }
+
+.el-tabs__nav-scroll{
+    display: flex;
+    justify-content: center;
+}
+
+.el-tabs__nav-wrap::after{
+    height: 1px !important;
+}
+
+.el-form-item__label-wrap, .el-form-item .el-form-item--default {
+    text-align: justify !important;
+}
+
+.el-table{
+    margin: 0 auto;
+}
+
 </style>
