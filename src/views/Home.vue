@@ -35,8 +35,9 @@
             <el-form-item>
                 <div class="btns">
                     <div>
-                        <el-button type="primary" @click="submitFormTitle">标记标题</el-button>
-                        <el-button type="primary" @click="submitFormUnTrans">标记无需翻译</el-button>
+                        <el-button type="primary" @click="submitFormWithStatus(200)">标记标题</el-button>
+                        <el-button type="primary" @click="submitFormWithStatus(201)">标记无需翻译</el-button>
+                        <el-button type="primary" @click="submitFormWithStatus(202)">标记无需校准</el-button>
                     </div>
                     <div>
                         <el-button type="primary" @click="submitForm">提交</el-button>
@@ -59,7 +60,7 @@
                         <a :href="item?.github" target="_blank">
                             {{item?.contributor}}
                         </a>
-                        校准于 {{formatGMT(item?.update_time)}}
+                        更新于 {{formatGMT(item?.update_time)}}
                     </h4>
                     <p>
                         {{ item?.calibmsg }}
@@ -211,7 +212,7 @@ export default defineComponent({
                 await getRankData()
 
             }else {
-                ElNotification.info('请从 Nav2 中文网页面进入')
+                ElNotification.info('请从中文网页面进入')
             }
         })
 
@@ -255,31 +256,7 @@ export default defineComponent({
         }
 
         // 标记无需翻译
-        const submitFormTitle = () => {
-            const calibmsg = form.newText.trim()
-                const data = {
-                    calibmsg,
-                    msgid: query,
-                    name: form.username,
-                    github: form.github,
-                    email: form.email,
-                    status: 200
-                }
-                http('calib_msg', {data, method: 'POST'}).then(res => {
-                        ElMessage({
-                        message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
-                        type: 'success',
-                        duration: 6000
-                    })
-                    const {calibmsg, msgid, ...userinfo} = data
-                setLocalStorage('tw', userinfo)
-                }).catch(e => {
-                    ElMessage.error(e)
-                })
-        }
-
-        // 标记无需翻译
-        const submitFormUnTrans = () => {
+        const submitFormWithStatus = (status: number) => {
                 const calibmsg = form.newText.trim()
                 const data = {
                     calibmsg,
@@ -287,9 +264,10 @@ export default defineComponent({
                     name: form.username,
                     github: form.github,
                     email: form.email,
-                    status: 201
+                    status: status
                 }
                 http('calib_msg', {data, method: 'POST'}).then(res => {
+                    
                         ElMessage({
                         message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                         type: 'success',
@@ -318,8 +296,8 @@ export default defineComponent({
         return {
             form,
             submitForm,
-            submitFormTitle,
-            submitFormUnTrans,
+            // submitFormTitle,
+            submitFormWithStatus,
             data,
             rules,
             getNextMsg,
