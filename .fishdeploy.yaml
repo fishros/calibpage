@@ -1,22 +1,19 @@
-# fishros deploy tool 
-# 所有的操作都在工程目录进行
-# os / docker 
-mode: os
-env: nodejs
+# fishros deploy tool 所有的操作都在工程目录进行
 name: nav2calibpage
-tag: main
-parallel: true
-stage:
-  prepare:
+tag: master
+pipline:
+  - install-dep
+  - build
+  - install
+stages:
+  install-dep:
+    - yarn
+  build:
+    - yarn build
+  install:
     - mkdir -p /root/nav2/dev/calibpage/
     - mkdir -p /root/nav2/master/calibpage/
-    - yarn
-  start:
-    - yarn build
-  end:
     - rm -rf /root/nav2/master/calibpage/*
     - cp -r dist/*  /root/nav2/master/calibpage/
     - rm -rf /root/nav2/dev/calibpage/*
     - cp -r dist/*  /root/nav2/dev/calibpage/
-# 超时
-timeout: 200
