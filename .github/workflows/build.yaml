@@ -7,7 +7,7 @@ on:
     branches: [ master ]
 
 jobs:
-  build:
+  build: 
 
     runs-on: ubuntu-latest
 
@@ -16,10 +16,25 @@ jobs:
         node-version: [ 18.x]
 
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v3
+
       - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v3
         with:
           node-version: ${{ matrix.node-version }}
-      - run: yarn
-      - run: yarn build
+        
+      - name: Install Dep
+        run: yarn
+
+      - name: Build the Page
+        run: yarn build
+
+      - name: Deploy documentation
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.ACCESS_TOKEN }}
+          publish_dir: ./dist/
+          publish_branch: gh-pages-master  # 修改为您要将构建结果推送到的分支
+
+
