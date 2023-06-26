@@ -37,7 +37,6 @@
                     <div>
                         <el-button type="primary" @click="submitFormWithStatus(200)">标记标题</el-button>
                         <el-button type="primary" @click="submitFormWithStatus(201)">标记无需翻译</el-button>
-                        <el-button type="primary" @click="submitFormWithStatus(202)">标记无需校准</el-button>
                     </div>
                     <div>
                         <el-button type="primary" @click="submitForm">提交</el-button>
