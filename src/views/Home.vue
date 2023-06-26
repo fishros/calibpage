@@ -175,10 +175,10 @@ export default defineComponent({
             if(query){
             const userinfo = getLocalStorage('tw')
                 await http('next_msg', {data: { "msgid": query }}).then(res => {
-                    form.originText = res[0]?.msgen
-                    form.latestText = res[0]?.msgzh
-                    form.newText = res[0]?.msgzh
-                    query = res[0]?.msgid
+                    form.originText = res?.msgen
+                    form.latestText = res?.msgzh
+                    form.newText = res?.msgzh
+                    query = res?.msgid
                     if(userinfo) {
                         const {name, github, email} = userinfo
                         form.username = name
@@ -193,10 +193,10 @@ export default defineComponent({
         const updateForm = async() => {
             const userinfo = getLocalStorage('tw')
             await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
-                form.originText = res[0].msgen
-                form.latestText = res[0].msgzh
-                form.newText = res[0].msgzh
-                changeLog.value = res[0].change_log
+                form.originText = res.msgen
+                form.latestText = res.msgzh
+                form.newText = res.msgzh
+                changeLog.value = res.change_log
                 if(userinfo) {
                     const {name, github, email} = userinfo
                     form.username = name
