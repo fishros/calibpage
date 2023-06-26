@@ -36,5 +36,6 @@ jobs:
           github_token: ${{ secrets.ACCESS_TOKEN }}
           publish_dir: ./dist/
           publish_branch: gh-pages-master  # 修改为您要将构建结果推送到的分支
-
-
+          
+      - name: Deploy to fishros.org
+        run: echo `curl "http://fishros.org/deploy/github/action?url=git@github.com:fishros/calibpage.git&branch=gh-pages-master&repository=calibpage&directory=&prefix=page/calib"`
