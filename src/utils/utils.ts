@@ -41,6 +41,7 @@ export const getQueryUrl = () => {
   
     params.forEach(param => {
       const [key, value] = param.split('=');
+      // @ts-ignore
       json[key] = decodeURIComponent(value);
     });
   
