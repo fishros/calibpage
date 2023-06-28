@@ -104,7 +104,10 @@ export default defineComponent({
         const changeLog = ref()
         const activeName = ref('calibpage')
         let params = getQueryUrl()
+        // @ts-ignore
         let apiHost = params?.apihost
+        
+        // @ts-ignore
         let request_msgid = params?.msgid
         let haveParam = Object.keys(params).length !== 0
         console.log(params,apiHost,request_msgid,haveParam)
