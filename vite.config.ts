@@ -21,7 +21,7 @@ export default defineConfig({
   },
   define: {
     'process.env': {
-      'BASE_API': 'http://fishros.org:2023/ros2/calib'
+      // 'BASE_API': 'http://fishros.org:2023/ros2/calib'
     }
   }
 })

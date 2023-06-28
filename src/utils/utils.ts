@@ -29,11 +29,24 @@ export const getLocalStorage = (key: string) => {
 
 
 export const getQueryUrl = () => {
-    let url = "", query = ''
-    url = window.location.href
-    query = url?.split('?')[1]?.split('=')[1]
-    return query
-}
+    const url = window.location.href;
+    const queryString = url.split('?')[1];
+  
+    if (!queryString) {
+      return {}; // 返回空对象，表示没有参数
+    }
+  
+    const params = queryString.split('&');
+    const json = {};
+  
+    params.forEach(param => {
+      const [key, value] = param.split('=');
+      json[key] = decodeURIComponent(value);
+    });
+  
+    return json;
+  };
+  
 
 export const formatGMT = (gmt: string) => {
     let date = new Date(gmt)

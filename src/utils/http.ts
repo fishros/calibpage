@@ -1,15 +1,16 @@
 import qs from 'qs'
 
-const apiUrl = process.env.BASE_API
+const apiUrl = 'http://fishros.org:2023/ros2/calib'
 interface Config extends RequestInit{
     data?: object
 }
 
 export const http = async (
+    apiHost: string,
     endpoint: string,
     { data, ...customConfig }: Config = {}
 ) => {
-    console.log(apiUrl, 'apiUrl')
+    console.log(apiHost, 'apiHost')
     const config = {
         method: 'GET',
         // headers: {
@@ -25,7 +26,7 @@ export const http = async (
         config.body = JSON.stringify(data || {})
     }
 
-    return window.fetch(`${apiUrl}/${endpoint}`, config)
+    return window.fetch(`${apiHost}/${endpoint}`, config)
     .then(async response => {
         const data = await response.json()
         if(response.ok){

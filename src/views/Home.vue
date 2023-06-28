@@ -103,7 +103,11 @@ export default defineComponent({
         let rankData = ref()
         const changeLog = ref()
         const activeName = ref('calibpage')
-        let query = getQueryUrl()
+        let params = getQueryUrl()
+        let apiHost = params?.apihost
+        let request_msgid = params?.msgid
+        let haveParam = Object.keys(params).length !== 0
+        console.log(params,apiHost,request_msgid,haveParam)
         const formRef = ref()
         const form = reactive({
             username: '',
@@ -171,13 +175,13 @@ export default defineComponent({
         })
 
         const getNextMsg = async() => {
-            if(query){
+            if(haveParam){
             const userinfo = getLocalStorage('tw')
-                await http('next_msg', {data: { "msgid": query }}).then(res => {
+                await http(apiHost,'next_msg', {data: { "msgid": parseInt(request_msgid, 10)+1 }}).then(res => {
                     form.originText = res?.msgen
                     form.latestText = res?.msgzh
                     form.newText = res?.msgzh
-                    query = res?.msgid
+                    request_msgid = res?.msgid
                     if(userinfo) {
                         const {name, github, email} = userinfo
                         form.username = name
@@ -191,7 +195,7 @@ export default defineComponent({
 
         const updateForm = async() => {
             const userinfo = getLocalStorage('tw')
-            await http('get_msg', {data: { "msgid": query }, method: 'post'}).then(res => {
+            await http(apiHost,'get_msg', {data: { "msgid": request_msgid }, method: 'post'}).then(res => {
                 form.originText = res.msgen
                 form.latestText = res.msgzh
                 form.newText = res.msgzh
@@ -206,17 +210,19 @@ export default defineComponent({
         }
 
         onBeforeMount(async() => {
-            if(query) {
+            if (haveParam){
                 await updateForm()
                 await getRankData()
-
-            }else {
+            }else{
                 ElNotification.info('请从中文网页面进入')
             }
         })
 
         onMounted(async() => {
-            await getRankData()
+            if (haveParam){
+                await getRankData()
+                ElNotification.success('已更新排行榜')
+            }
         })
 
         // 提交
@@ -226,12 +232,12 @@ export default defineComponent({
                     const calibmsg = form.newText.trim()
                     const data = {
                         calibmsg,
-                        msgid: query,
+                        msgid: request_msgid,
                         name: form.username,
                         github: form.github,
                         email: form.email
                     }
-                    http('calib_msg', {data, method: 'POST'}).then(async res => {
+                    http(apiHost,'calib_msg', {data, method: 'POST'}).then(async res => {
                           ElMessage({
                             message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                             type: 'success',
@@ -259,14 +265,13 @@ export default defineComponent({
                 const calibmsg = form.newText.trim()
                 const data = {
                     calibmsg,
-                    msgid: query,
+                    msgid: request_msgid,
                     name: form.username,
                     github: form.github,
                     email: form.email,
                     status: status
                 }
-                http('calib_msg', {data, method: 'POST'}).then(res => {
-                    
+                http(apiHost,'calib_msg', {data, method: 'POST'}).then(res => {
                         ElMessage({
                         message: `提交成功，棒棒哒！恭喜您已累计校准${res.calibcount}词汇`,
                         type: 'success',
@@ -285,7 +290,7 @@ export default defineComponent({
 
         // 获取排行榜数据
         const getRankData = () => {
-            http('calib_rank').then(res => {
+            http(apiHost,'calib_rank').then(res => {
                 console.log(res, 'rankres')
                 rankData.value = res
                 console.log(rankData.value, 'rankData')
